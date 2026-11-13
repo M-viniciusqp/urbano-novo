@@ -27,9 +27,10 @@ STEER_INVERT = False
 # =====================================================================
 # 3. VELOCIDADE (0.0 a 1.0)
 # =====================================================================
-VELOCIDADE_BASE    = 1.00   # No maximo. O freio automatico por FPS baixo e
-                            # o freio de curva fechada continuam ativos.
-VELOCIDADE_MINIMA  = 0.45   # subiu de 0.35 -- piso normal de curva
+VELOCIDADE_BASE    = 0.55   # baixou de 1.00 -- a 100% a camera/controle nao davam
+                            # conta e o carro balancava. Suba de 0.05 em 0.05
+                            # so quando estiver andando RETO e estavel.
+VELOCIDADE_MINIMA  = 0.35   # baixou de 0.45 -- piso normal de curva
 VELOCIDADE_PERDIDO = 0.22   # perdeu a pista, andando devagar procurando
 
 FPS_MINIMO_SEGURO = 15.0
@@ -82,8 +83,9 @@ SPEED_CURVATURA_PESO  = 75.0   # baixou de 90.0 -- mesma logica
 
 CURVA_FECHADA_LIMIAR     = 0.004
 CURVA_FECHADA_RANGE      = 0.014
-VELOCIDADE_MINIMA_FECHADA = 0.38   # subiu de 0.32 -- piso mais alto so pra
-                                    # curva bem fechada tambem
+VELOCIDADE_MINIMA_FECHADA = 0.28   # baixou de 0.38 (tem que ser MENOR que a
+                                    # VELOCIDADE_MINIMA) -- piso so pra curva
+                                    # bem fechada
 
 # =====================================================================
 # 7. CONTROLE (PID)
@@ -126,8 +128,10 @@ MAX_FRAMES_PERDIDO = 12
 #               pontilhada e anda colado nela.
 LADO_PISTA = 'direita'
 
-LANE_BIAS_FRAC   = 0.85     # MAGNITUDE do deslocamento (fracao da meia-largura
-                            # da pista). 0.85 = bem colado no lado escolhido.
+LANE_BIAS_FRAC   = 0.60     # MAGNITUDE do deslocamento (fracao da meia-largura
+                            # da pista). Baixou de 0.85: colado demais na faixa
+                            # o carro cruzava a linha ao balancar e perdia o
+                            # rastreio -- virava oscilacao. Ainda e DIREITA.
                             # (antes: subiu de 0.70 -- bem mais perto do pontilhado)
 LANE_BIAS_LIMITE = 0.90     # subiu de 0.80 -- abriu mais espaco pro vies.
                             # ATENCAO: isso ja come bastante da margem de
@@ -198,10 +202,14 @@ CONE_VELOCIDADE   = 0.20    # 20% da velocidade enquanto ve/desvia/volta
 CONE_POS_DESVIO   = -0.50   # onde ficar durante o desvio, em fracao da meia-largura
                             # da pista (-1 = colado na faixa esquerda, 0 = centro,
                             # +1 = colado na direita). Negativo = ESQUERDA.
-CONE_RAMPA_DESVIO = 5.0     # 1/s. 5.0 = vai todo pra esquerda em ~0.2 s (RAPIDO)
-CONE_RAMPA_VOLTA  = 2.5     # 1/s. volta pra direita em ~0.4 s (um pouco mais suave)
-CONE_GANHO_ESTERCO = 1.5    # multiplica o esterco enquanto desvia/volta (mais
-                            # agressivo = desvia mais rapido). 1.0 = desliga
+CONE_RAMPA_DESVIO = 4.0     # 1/s. 4.0 = vai todo pra esquerda em ~0.25 s (rapido
+                            # sem dar tranco; antes 5.0)
+CONE_RAMPA_VOLTA  = 2.0     # 1/s. volta pra direita em ~0.5 s, suave (antes 2.5)
+CONE_GANHO_ESTERCO = 1.2    # multiplica o esterco enquanto desvia/volta. Baixou de
+                            # 1.5: com ganho alto o carro passava do ponto e
+                            # balancava. 1.0 = desliga
+CONE_PROCESSA_A_CADA = 2    # a 2a camera analisa 1 a cada N frames (2 = ~15/s).
+                            # Alivia a CPU do Pi pra pista nao perder FPS
 CONE_TEMPO_PASSAR = 0.8     # s. Depois que o cone SAI da imagem, continua pela
                             # esquerda por esse tempo (o corpo do carro ainda
                             # esta ao lado do cone). Aumente se raspar no cone

@@ -115,11 +115,15 @@ class ConeCamera:
         return True
 
     def _loop(self):
+        n = 0
         while self._rodando:
-            ok, frame = self.cap.read()
+            ok, frame = self.cap.read()     # sempre le (mantem o buffer fresco)
             if not ok:
                 time.sleep(0.01)
                 continue
+            n += 1
+            if n % max(1, config.CONE_PROCESSA_A_CADA):
+                continue                    # pula a analise: poupa CPU da pista
             frame = cv2.resize(frame, config.CONE_CAMERA_RES)
             res = self.detector.process(frame)
             with self._lock:
