@@ -7,6 +7,7 @@ cone_vision.py - 2a camera: so procura CONES. Nao mexe na pista.
                 cuida da pista). O main so chama .latest() (instantaneo).
 """
 
+import sys
 import threading
 import time
 
@@ -80,7 +81,11 @@ class ConeDetector:
 
 
 def abrir_camera_cones():
-    cap = cv2.VideoCapture(config.CONE_CAMERA_INDEX, cv2.CAP_V4L2)
+    # V4L2 so existe no Linux (Raspberry Pi). No Windows/Mac usa o padrao.
+    if sys.platform.startswith("linux"):
+        cap = cv2.VideoCapture(config.CONE_CAMERA_INDEX, cv2.CAP_V4L2)
+    else:
+        cap = cv2.VideoCapture(config.CONE_CAMERA_INDEX)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CONE_CAMERA_RES[0])
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CONE_CAMERA_RES[1])
