@@ -171,10 +171,13 @@ CONE_CAMERA_INDEX = 2
 CONE_CAMERA_RES   = (320, 240)   # menor que a da pista: 2 cameras USB dividem
                                  # a banda do barramento do Pi
 
-# ---- cor do cone (HSV do OpenCV: H 0-179) -- padrao: cone LARANJA ----
+# ---- cor do cone (HSV do OpenCV: H 0-179) -- aceita LARANJA e VERMELHO ----
+# O vermelho "dobra" o H: fica em 0..10 E em 170..179. O laranja fica em ~10..20.
+#   faixa 1: CONE_H_MIN..CONE_H_MAX      (0..20)    -> laranja + vermelho-alaranjado
+#   faixa 2: CONE_H_VERM_MIN..179        (170..179) -> vermelho puro (o cone da foto: H~174)
 CONE_H_MIN     = 0
 CONE_H_MAX     = 20
-CONE_H_VERM_MIN = 170       # laranja-avermelhado "dobra" o H (170..179). 180 desliga
+CONE_H_VERM_MIN = 170       # 180 desliga a faixa 2 (so laranja)
 CONE_S_MIN     = 110        # saturacao minima (descarta o branco/cinza da pista)
 CONE_V_MIN     = 90
 
