@@ -202,32 +202,30 @@ CONE_ASPECT_MIN  = 0.6      # altura/largura minima do blob (cone e mais alto qu
 
 # ---- quando reagir ----
 CONE_CONFIRMA_FRAMES = 2    # frames SEGUIDOS vendo o cone pra confirmar
-CONE_DESVIO_Y_PCT    = 0.35 # comeca a desviar (antes 0.40: mais cedo, pra dar
-                            # distancia pro desvio lento) -- comeca a desviar quando a BASE do cone passa dessa
-                            # altura da imagem (0=topo, 1=base). Maior = desvia
-                            # mais perto do cone. Ajuste olhando o test_cones.py
+CONE_DESVIO_Y_PCT    = 0.0  # 0.0 = desvia ASSIM QUE CONFIRMA o cone, a qualquer
+                            # distancia (regra: NUNCA bater). Antes 0.35 e ele
+                            # so comecava perto demais. Se ele desviar de cone
+                            # la no fundo, fora da pista, suba (ex 0.20): a BASE
+                            # do cone tem que passar dessa altura (0=topo, 1=base)
 CONE_RESULTADO_VALIDADE = 0.5   # s. Leitura da camera mais velha que isso e ignorada
 
 # ---- como desviar ----
 CONE_VELOCIDADE   = 0.20    # 20% da velocidade enquanto ve/desvia/volta
-CONE_POS_DESVIO   = -0.30   # onde ficar durante o desvio, em fracao da meia-largura
-                            # da pista (-1 = colado na faixa esquerda, 0 = centro,
-                            # +1 = colado na direita). Negativo = ESQUERDA.
-                            # (antes -0.50: movia a pista quase inteira e o carro
-                            # passava do ponto e cruzava a linha)
-# ATENCAO: a rampa e em TEMPO, mas a 20% de velocidade o carro anda pouco por
-# segundo. Rampa rapida = o carro vira tudo e NAO tem chao pra deslocar de
-# lado -> passa do ponto e sai da pista. Por isso as rampas sao lentas.
-CONE_RAMPA_DESVIO = 1.5     # 1/s. ~0.65 s ate desviar por completo (antes 4.0)
-CONE_RAMPA_VOLTA  = 1.0     # 1/s. ~1 s pra voltar pra direita, suave (antes 2.0)
-CONE_GANHO_ESTERCO = 1.0    # 1.0 = sem reforco no esterco (antes 1.2/1.5: o
-                            # reforco fazia o carro passar do ponto)
-CONE_PROCESSA_A_CADA = 2    # a 2a camera analisa 1 a cada N frames (2 = ~15/s).
-                            # Alivia a CPU do Pi pra pista nao perder FPS
-CONE_TEMPO_PASSAR = 1.2     # s. (antes 0.8: a 20% o carro leva mais tempo pra passar) Depois que o cone SAI da imagem, continua pela
+CONE_POS_DESVIO   = -0.55   # onde ficar durante o desvio, no MUNDO REAL, em fracao
+                            # da meia-largura da pista (-1 = colado na faixa
+                            # ESQUERDA, 0 = centro, +1 = colado na DIREITA).
+                            # -0.55 = bem na metade esquerda, ainda DENTRO da
+                            # pista. (antes -0.30: pouco, batia no cone)
+CONE_RAMPA_DESVIO = 3.0     # 1/s. ~0.33 s ate desviar por completo (antes 1.5:
+                            # lento demais, o cone chegava antes do desvio)
+CONE_RAMPA_VOLTA  = 1.0     # 1/s. ~1 s pra voltar pra direita, suave
+CONE_GANHO_ESTERCO = 1.3    # reforco no esterco enquanto desvia/volta (antes 1.0)
+CONE_PROCESSA_A_CADA = 1    # a 2a camera analisa 1 a cada N frames. 1 = todo
+                            # frame: ve o cone o mais cedo possivel (antes 2)
+CONE_TEMPO_PASSAR = 1.5     # s. Depois que o cone SAI da imagem, continua pela
                             # esquerda por esse tempo (o corpo do carro ainda
                             # esta ao lado do cone). Aumente se raspar no cone
-                            # ao voltar; diminua se demorar a voltar.
+                            # ao voltar; diminua se demorar a voltar. (antes 1.2)
 
 
 # =====================================================================
