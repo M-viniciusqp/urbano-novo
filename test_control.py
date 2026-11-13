@@ -52,8 +52,8 @@ def main():
                   config.SERVO_PIN)
 
     print("TRACAO DESLIGADA. So o servo se mexe.")
-    print("Erro NEGATIVO -> servo deve ir pra DIREITA (corrigindo de volta)")
-    print("Erro POSITIVO -> servo deve ir pra ESQUERDA")
+    print("Erro NEGATIVO (alvo a esquerda) -> servo deve ir pra ESQUERDA (SERVO_MAX_ESQ)")
+    print("Erro POSITIVO (alvo a direita)  -> servo deve ir pra DIREITA (SERVO_MAX_DIR)")
     print("'+' sobe PID_KP | '-' desce | 'i' inverte | 'q' sai\n")
 
     frame_anterior_confiavel = True

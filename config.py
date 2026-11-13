@@ -128,15 +128,9 @@ MAX_FRAMES_PERDIDO = 12
 #               pontilhada e anda colado nela.
 LADO_PISTA = 'direita'
 
-# A imagem da camera da PISTA e espelhada em relacao ao mundo real?
-# No seu carro SIM: o test_control.py mostra "erro NEGATIVO (alvo a esquerda
-# NA IMAGEM) -> servo vai pra DIREITA". Ou seja: esquerda da imagem = DIREITA
-# de verdade. Com isso True, 'direita' e o desvio pela 'esquerda' valem no
-# MUNDO REAL, nao na imagem.
-# COMO CONFERIR (rodas levantadas, python3 Main.py): ponha um cone na frente
-# da camera dos cones -> as rodas TEM que virar pra ESQUERDA. Se virarem pra
-# direita, troque pra False.
-PISTA_IMAGEM_ESPELHADA = True
+# SENTIDO (confirmado no corrida-cone2, mesmo MotorModule): erro/turn
+# NEGATIVO = roda pra ESQUERDA (servo vai pra SERVO_MAX_ESQ = 0 graus);
+# POSITIVO = DIREITA (SERVO_MAX_DIR = 90). A imagem NAO e espelhada.
 
 LANE_BIAS_FRAC   = 0.60     # MAGNITUDE do deslocamento (fracao da meia-largura
                             # da pista). Baixou de 0.85: colado demais na faixa
@@ -216,8 +210,19 @@ CONE_POS_DESVIO   = -0.55   # onde ficar durante o desvio, no MUNDO REAL, em fra
                             # ESQUERDA, 0 = centro, +1 = colado na DIREITA).
                             # -0.55 = bem na metade esquerda, ainda DENTRO da
                             # pista. (antes -0.30: pouco, batia no cone)
-CONE_RAMPA_DESVIO = 3.0     # 1/s. ~0.33 s ate desviar por completo (antes 1.5:
-                            # lento demais, o cone chegava antes do desvio)
+CONE_RAMPA_DESVIO = 10.0    # 1/s. O ALVO pula pra esquerda em ~0.1 s; quem faz
+                            # o carro ir rapido e o GIRO NO LIMITE abaixo.
+
+# GIRO NO LIMITE (pedido do usuario): ao comecar o desvio o servo vai TODO pra
+# ESQUERDA (SERVO_MAX_ESQ) e fica la ate o carro chegar na posicao da esquerda
+# (erro da pista quase zero) ou ate CONE_GIRO_MAX_S. Depois a pista assume e
+# segura o carro na esquerda, ainda DENTRO da pista.
+# Durante TODO o desvio o servo NUNCA vira pra direita (pro lado do cone).
+CONE_GIRO_LIMITE     = True
+CONE_GIRO_MAX_S      = 0.7   # s no limite, no maximo. Saiu da pista pela
+                             # esquerda -> desca. Ainda raspa no cone -> suba.
+CONE_GIRO_SOLTA_ERRO = 0.05  # solta o limite quando o erro da pista passa disso
+                             # (o carro chegou na posicao da esquerda)
 CONE_RAMPA_VOLTA  = 1.0     # 1/s. ~1 s pra voltar pra direita, suave
 CONE_GANHO_ESTERCO = 1.3    # reforco no esterco enquanto desvia/volta (antes 1.0)
 CONE_PROCESSA_A_CADA = 1    # a 2a camera analisa 1 a cada N frames. 1 = todo

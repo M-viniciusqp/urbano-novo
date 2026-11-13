@@ -97,8 +97,9 @@ def main():
             # a maquina de estados decidir. `desvio.desvio` (0..1) diz o
             # quanto o alvo ja foi deslocado pra ESQUERDA.
             cone = cones.latest() if cones is not None else None
+            agora = time.time()
             cone_prev = desvio.estado
-            desvio.update(cone)
+            desvio.update(cone, now=agora)
             if desvio.estado != cone_prev:
                 print(f">> CONE: {cone_prev} -> {desvio.estado}")
 
@@ -122,6 +123,7 @@ def main():
                 turn = pid.update(res.error, res.heading)
                 # desviando de cone: esterco mais agressivo pra sair rapido
                 turn = max(-1.0, min(1.0, turn * desvio.ganho))
+                # (o giro no LIMITE e a trava "nunca pro cone" ficam mais abaixo)
                 speed = speed_for(turn, res.curvature)
 
                 # TRAVA DE SEGURANCA: se o FPS medido estiver abaixo do minimo
@@ -141,6 +143,14 @@ def main():
             else:
                 turn, speed = 0.0, 0.0
                 pid.reset()
+
+            # CONE: desviando, o servo NUNCA vira pra direita (pro cone) e, no
+            # comeco, vai no LIMITE da esquerda. Vale mesmo com a pista perdida.
+            if speed > 0:
+                turn = desvio.ajustar_turn(turn, res, now=agora)
+            if desvio.evento:
+                print(f">> CONE: {desvio.evento}")
+                desvio.evento = None
 
             # CONE: ao ver/desviar/voltar, no maximo 20% da velocidade. Vale em
             # qualquer ramo acima (pista ok, perdida...). min() nunca ACELERA.
