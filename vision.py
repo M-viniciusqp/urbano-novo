@@ -25,7 +25,7 @@ import config
 class LaneResult:
     __slots__ = ("error", "heading", "curvature", "found_left", "found_right",
                  "valid", "center_x", "debug_view", "debug_mask",
-                 "motivo", "n_pontos", "lado_continuo")
+                 "motivo", "n_pontos", "lado_continuo", "pos_carro")
 
     def __init__(self):
         self.error = 0.0
@@ -40,6 +40,9 @@ class LaneResult:
         self.motivo = "ok"     # por que perdeu, quando valid=False
         self.n_pontos = 0      # quantas linhas varridas deram ponto valido
         self.lado_continuo = None   # 'esquerda' | 'direita' | None (ainda indefinido)
+        # onde o CARRO esta na pista, em meias-larguras: 0 = centro,
+        # -1 = em cima da linha ESQUERDA, +1 = em cima da DIREITA. None = sem medida
+        self.pos_carro = None
 
 
 class LaneVision:
@@ -424,8 +427,11 @@ class LaneVision:
         # Agora a posicao lateral e: pos_padrao() (LADO_PISTA, por padrao
         # sempre a DIREITA) misturada com a posicao de desvio de cone
         # (esquerda) conforme o parametro `desvio` (0..1, vindo do desvio.py).
+        hw_look = self._half_width(y_look)
+        if hw_look is not None:
+            # alvo aqui ainda e o CENTRO da pista (sem vies): da a posicao do carro
+            res.pos_carro = (car_x - alvo) / hw_look
         if config.LANE_BIAS_FRAC != 0.0 or desvio > 0.0:
-            hw_look = self._half_width(y_look)
             if hw_look is not None:
                 d = max(0.0, min(1.0, desvio))
                 pos = (1.0 - d) * self.pos_padrao() + d * config.CONE_POS_DESVIO

@@ -18,6 +18,7 @@ from controller import SteeringPID, speed_for
 from MotorModule import Motor
 from cone_vision import ConeCamera
 from desvio import DesvioCone
+from anti_trava import AntiTrava
 
 DEBUG = False          # desligado = mais FPS = reacao mais rapida
 
@@ -68,6 +69,7 @@ def main():
             cap.release()
             return
     desvio = DesvioCone()
+    anti = AntiTrava()     # pulso de forca quando o motor nao sai do lugar a 20%
 
     vision = LaneVision()
     pid = SteeringPID()
@@ -92,6 +94,7 @@ def main():
                 continue
 
             frame = cv2.resize(frame, config.CAMERA_RES)
+            anti.medir(frame)      # quanto o chao mexeu (o carro esta andando?)
 
             # cones: le a ultima deteccao da 2a camera (instantaneo) e deixa
             # a maquina de estados decidir. `desvio.desvio` (0..1) diz o
@@ -144,10 +147,11 @@ def main():
                 turn, speed = 0.0, 0.0
                 pid.reset()
 
-            # CONE: desviando, o servo NUNCA vira pra direita (pro cone) e, no
-            # comeco, vai no LIMITE da esquerda. Vale mesmo com a pista perdida.
+            # CONE: desviando, servo no LIMITE da esquerda enquanto o cone
+            # estiver na frente; nunca vira pro cone; para na borda esquerda
+            # da pista. Vale mesmo com a pista perdida.
             if speed > 0:
-                turn = desvio.ajustar_turn(turn, res, now=agora)
+                turn = desvio.ajustar_turn(turn, res, cone, now=agora)
             if desvio.evento:
                 print(f">> CONE: {desvio.evento}")
                 desvio.evento = None
@@ -156,6 +160,13 @@ def main():
             # qualquer ramo acima (pista ok, perdida...). min() nunca ACELERA.
             if desvio.freando:
                 speed = min(speed, config.CONE_VELOCIDADE)
+
+            # ANTI-TRAVA: a 20% o motor pode nao sair do repouso. Se mandou
+            # andar e o chao nao mexe, da um pulso curto de forca.
+            speed = anti.ajustar(speed, agora)
+            if anti.evento:
+                print(f">> MOTOR: {anti.evento}")
+                anti.evento = None
 
             motor.move(speed, turn)
             t3 = time.time()
@@ -188,8 +199,12 @@ def main():
                     cone_txt = f"visto (base {cone.y_base_pct*100:.0f}%, x {cone.x_norm:+.2f})"
                 else:
                     cone_txt = "nenhum"
+                pos_txt = f"{res.pos_carro:+.2f}" if res.pos_carro is not None else "-"
+                mov_txt = f"{anti.mov:.1f}" if anti.mov is not None else "-"
                 print(f"  cone -> {cone_txt} | estado {desvio.estado} | "
-                      f"desvio {desvio.desvio:.2f} | vel max {'20%' if desvio.freando else '-'}")
+                      f"desvio {desvio.desvio:.2f} | vel max {'20%' if desvio.freando else '-'} | "
+                      f"servo {'LIMITE ESQ' if desvio.no_limite else 'normal'} | "
+                      f"carro na pista {pos_txt} | chao mexeu {mov_txt}")
                 print(f"  gargalo -> camera {1000*t_cam/frames:.0f}ms  "
                       f"visao {1000*t_vis/frames:.0f}ms  motor {1000*t_mot/frames:.0f}ms  "
                       f"(por frame)")

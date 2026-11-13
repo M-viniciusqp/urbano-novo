@@ -18,11 +18,12 @@ import config
 
 
 class ConeResult:
-    __slots__ = ("found", "x_norm", "y_base_pct", "area", "bbox", "t")
+    __slots__ = ("found", "x_norm", "x_esq", "y_base_pct", "area", "bbox", "t")
 
     def __init__(self):
         self.found = False
-        self.x_norm = 0.0        # -1 (esquerda da imagem) .. +1 (direita)
+        self.x_norm = 0.0        # centro do cone: -1 (esquerda da imagem) .. +1 (direita)
+        self.x_esq = 0.0         # BORDA ESQUERDA do cone, mesma escala
         self.y_base_pct = 0.0    # 0 = topo .. 1 = base. Quanto maior, mais PERTO
         self.area = 0
         self.bbox = None         # (x, y, w, h) na imagem inteira
@@ -74,6 +75,7 @@ class ConeDetector:
             base, x, y, w, h, area = melhor
             res.found = True
             res.x_norm = ((x + w / 2.0) - W / 2.0) / (W / 2.0)
+            res.x_esq = (x - W / 2.0) / (W / 2.0)
             res.y_base_pct = base / float(H)
             res.area = int(area)
             res.bbox = (x, y, w, h)

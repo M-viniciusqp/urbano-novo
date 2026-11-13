@@ -219,10 +219,26 @@ CONE_RAMPA_DESVIO = 10.0    # 1/s. O ALVO pula pra esquerda em ~0.1 s; quem faz
 # segura o carro na esquerda, ainda DENTRO da pista.
 # Durante TODO o desvio o servo NUNCA vira pra direita (pro lado do cone).
 CONE_GIRO_LIMITE     = True
-CONE_GIRO_MAX_S      = 0.7   # s no limite, no maximo. Saiu da pista pela
-                             # esquerda -> desca. Ainda raspa no cone -> suba.
-CONE_GIRO_SOLTA_ERRO = 0.05  # solta o limite quando o erro da pista passa disso
-                             # (o carro chegou na posicao da esquerda)
+CONE_GIRO_MAX_S      = 0.7   # s da fase INICIAL no limite (antes do cone estar
+                             # bem na frente). Enquanto o cone estiver NA FRENTE
+                             # o limite continua, sem tempo maximo.
+CONE_GIRO_SOLTA_ERRO = 0.05  # fase inicial: solta quando o erro da pista passa
+                             # disso (o carro chegou na posicao da esquerda)
+CONE_X_LIVRE   = 0.20        # cone "fora do caminho" quando a BORDA ESQUERDA dele
+                             # (camera de cone, -1..+1) passa disso pra direita.
+                             # Ainda raspa no cone -> suba (ex 0.35).
+CONE_LIMITE_ESQ = 0.75       # NAO SAIR DA PISTA: carro a 75% da meia-largura pra
+                             # esquerda do centro -> para de virar pra esquerda.
+                             # Saiu pela esquerda -> desca (ex 0.60).
+
+# ---- ANTI-TRAVA (igual ao corrida-cone2) ----
+# Abaixo de ~0.22 o motor NAO sai do repouso (teste real: parado 6 s a 0.20).
+# Mandando andar e a imagem da pista PARADA -> pulso curto de forca pra arrancar.
+ANTI_TRAVA_ATIVO   = True
+ANTI_TRAVA_DIFF    = 2.0     # mudanca media da imagem abaixo disso = carro parado
+ANTI_TRAVA_S       = 0.5     # ... por esse tempo seguido
+ANTI_TRAVA_PULSO_S = 0.5     # duracao do pulso
+ANTI_TRAVA_VEL     = 0.50    # velocidade do pulso
 CONE_RAMPA_VOLTA  = 1.0     # 1/s. ~1 s pra voltar pra direita, suave
 CONE_GANHO_ESTERCO = 1.3    # reforco no esterco enquanto desvia/volta (antes 1.0)
 CONE_PROCESSA_A_CADA = 1    # a 2a camera analisa 1 a cada N frames. 1 = todo
