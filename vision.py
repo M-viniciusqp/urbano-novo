@@ -143,17 +143,26 @@ class LaneVision:
                 if len(g) >= config.SCAN_MIN_RUN_PX]
 
     # ------------------------------------------------------------------
+    @staticmethod
+    def _sinal_mundo():
+        """Converte lado do MUNDO REAL pra lado da IMAGEM (e vice-versa).
+        -1 quando a imagem da camera e espelhada (esquerda da imagem =
+        direita de verdade)."""
+        return -1.0 if config.PISTA_IMAGEM_ESPELHADA else 1.0
+
     def pos_padrao(self):
-        """Posicao lateral normal do carro, em fracao da meia-largura da
-        pista: +1 = colado na direita, -1 = colado na esquerda, 0 = centro."""
+        """Posicao lateral normal do carro, no MUNDO REAL, em fracao da
+        meia-largura da pista: +1 = colado na DIREITA de verdade,
+        -1 = colado na ESQUERDA de verdade, 0 = centro."""
         mag = min(config.LANE_BIAS_LIMITE, abs(config.LANE_BIAS_FRAC))
         if config.LADO_PISTA == 'direita':
             return +mag
         if config.LADO_PISTA == 'esquerda':
             return -mag
-        # 'auto' (comportamento antigo): _sinal_continuo aponta pro lado da
-        # CONTINUA e o carro quer ficar do lado oposto (a pontilhada).
-        return -self._sinal_continuo * mag
+        # 'auto' (comportamento antigo): _sinal_continuo e medido na IMAGEM,
+        # aponta pro lado da CONTINUA e o carro quer o lado oposto. Converte
+        # pra mundo (a conversao de volta em process() cancela -> igual antes).
+        return self._sinal_mundo() * (-self._sinal_continuo * mag)
 
     def process(self, frame, debug=False, desvio=0.0):
         """desvio: 0.0 = posicao normal (pos_padrao) .. 1.0 = totalmente
@@ -426,8 +435,10 @@ class LaneVision:
             hw_look = self._half_width(y_look)
             if hw_look is not None:
                 d = max(0.0, min(1.0, desvio))
+                # pos no MUNDO REAL (+ = direita de verdade) ...
                 pos = (1.0 - d) * self.pos_padrao() + d * config.CONE_POS_DESVIO
-                alvo += pos * hw_look
+                # ... convertida pra IMAGEM (camera espelhada inverte o lado)
+                alvo += self._sinal_mundo() * pos * hw_look
                 alvo = max(0.0, min(float(self.W), alvo))
 
         self.last_center = 0.6 * self.last_center + 0.4 * media

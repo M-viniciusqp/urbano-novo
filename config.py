@@ -128,6 +128,16 @@ MAX_FRAMES_PERDIDO = 12
 #               pontilhada e anda colado nela.
 LADO_PISTA = 'direita'
 
+# A imagem da camera da PISTA e espelhada em relacao ao mundo real?
+# No seu carro SIM: o test_control.py mostra "erro NEGATIVO (alvo a esquerda
+# NA IMAGEM) -> servo vai pra DIREITA". Ou seja: esquerda da imagem = DIREITA
+# de verdade. Com isso True, 'direita' e o desvio pela 'esquerda' valem no
+# MUNDO REAL, nao na imagem.
+# COMO CONFERIR (rodas levantadas, python3 Main.py): ponha um cone na frente
+# da camera dos cones -> as rodas TEM que virar pra ESQUERDA. Se virarem pra
+# direita, troque pra False.
+PISTA_IMAGEM_ESPELHADA = True
+
 LANE_BIAS_FRAC   = 0.60     # MAGNITUDE do deslocamento (fracao da meia-largura
                             # da pista). Baixou de 0.85: colado demais na faixa
                             # o carro cruzava a linha ao balancar e perdia o
